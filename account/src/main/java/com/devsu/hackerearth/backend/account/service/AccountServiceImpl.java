@@ -44,11 +44,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountDto create(AccountDto accountDto, String authorizationHeader) {
+    public AccountDto create(AccountDto accountDto) {
         Long currentClientId = SecurityUtils.getCurrentClientId();
 
         accountDto.setClientId(currentClientId);
 
+        String authorizationHeader = SecurityUtils.getCurrentAuthorizationHeader();
         this.clientRestClient.getClientByIdBlocking(currentClientId, authorizationHeader);
 
         Account newAccount = new Account();

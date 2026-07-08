@@ -13,7 +13,7 @@ public interface TransactionService {
     public List<TransactionDto> getAll();
 	public TransactionDto getById(Long id);
 	public TransactionDto create(TransactionDto transactionDto);
-    public List<BankStatementDto> getAllByAccountClientIdAndDateBetween(Long clientId, @Param("dateTransactionStart") Date dateTransactionStart, @Param("dateTransactionEnd") Date dateTransactionEnd, String authorizarionHeader);
+    public List<BankStatementDto> getAllByAccountClientIdAndDateBetween(Long clientId, @Param("dateTransactionStart") Date dateTransactionStart, @Param("dateTransactionEnd") Date dateTransactionEnd);
     public TransactionDto getLastByAccountId(Long accountId);
     public void deleteById(Long id);
 }

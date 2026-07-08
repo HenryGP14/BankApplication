@@ -7,11 +7,11 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.devsu.hackerearth.backend.client.controller.ClientController;
 import com.devsu.hackerearth.backend.client.model.Client;
 import com.devsu.hackerearth.backend.client.model.Person;
-import com.devsu.hackerearth.backend.client.model.dto.BasicResponse;
 import com.devsu.hackerearth.backend.client.model.dto.ClientDto;
 import com.devsu.hackerearth.backend.client.service.ClientService;
 
@@ -30,11 +30,11 @@ public class sampleTest {
         when(clientService.create(newClient)).thenReturn(createdClient);
 
         // Act
-        BasicResponse<ClientDto> response = clientController.create(newClient);
+        ResponseEntity<ClientDto> response = clientController.create(newClient);
 
         // Assert
-        assertEquals(HttpStatus.CREATED.value(), response.getCode());
-        assertEquals(createdClient, response.getData());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(createdClient, response.getBody());
     }
 
     @Test

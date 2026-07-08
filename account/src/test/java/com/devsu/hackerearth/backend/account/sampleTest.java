@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -20,7 +20,6 @@ import com.devsu.hackerearth.backend.account.controller.AccountController;
 import com.devsu.hackerearth.backend.account.exception.GenericException;
 import com.devsu.hackerearth.backend.account.model.Account;
 import com.devsu.hackerearth.backend.account.model.dto.AccountDto;
-import com.devsu.hackerearth.backend.account.model.dto.BasicResponse;
 import com.devsu.hackerearth.backend.account.model.dto.TransactionDto;
 import com.devsu.hackerearth.backend.account.repository.AccountRepository;
 import com.devsu.hackerearth.backend.account.service.AccountService;
@@ -53,14 +52,14 @@ public class sampleTest {
 		// Arrange
 		AccountDto newAccount = new AccountDto(1L, "number", "savings", 0.0, true, 1L);
 		AccountDto createdAccount = new AccountDto(1L, "number", "savings", 0.0, true, 1L);
-		when(accountService.create(newAccount, null)).thenReturn(createdAccount);
+		when(accountService.create(newAccount)).thenReturn(createdAccount);
 
 		// Act
-		BasicResponse<AccountDto> response = accountController.create(newAccount, new MockHttpServletRequest());
+		ResponseEntity<AccountDto> response = accountController.create(newAccount);
 
 		// Assert
-		assertEquals(HttpStatus.CREATED.value(), response.getCode());
-		assertEquals(createdAccount, response.getData());
+		assertEquals(HttpStatus.CREATED, response.getStatusCode());
+		assertEquals(createdAccount, response.getBody());
 	}
 
 	@Test

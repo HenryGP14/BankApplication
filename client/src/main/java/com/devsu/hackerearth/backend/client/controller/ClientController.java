@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.devsu.hackerearth.backend.client.model.dto.BasicResponse;
 import com.devsu.hackerearth.backend.client.model.dto.ClientDto;
 import com.devsu.hackerearth.backend.client.model.dto.PartialClientDto;
 import com.devsu.hackerearth.backend.client.service.ClientService;
@@ -32,41 +32,41 @@ public class ClientController {
 	}
 
 	@GetMapping
-	public BasicResponse<List<ClientDto>> getAll() {
+	public ResponseEntity<List<ClientDto>> getAll() {
 		List<ClientDto> clients = this.clientService.getAll();
-		return BasicResponse.of(HttpStatus.OK, "Clientes obtenidos correctamente", clients);
+		return ResponseEntity.ok(clients);
 	}
 
 	@GetMapping("/{id}")
-	public BasicResponse<ClientDto> get(@PathVariable Long id) {
+	public ResponseEntity<ClientDto> get(@PathVariable Long id) {
 		ClientDto client = this.clientService.getById(id);
-		return BasicResponse.of(HttpStatus.OK, "Cliente obtenido correctamente", client);
+		return ResponseEntity.ok(client);
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public BasicResponse<ClientDto> create(@Valid @RequestBody ClientDto clientDto) {
+	public ResponseEntity<ClientDto> create(@Valid @RequestBody ClientDto clientDto) {
 		ClientDto created = this.clientService.create(clientDto);
-		return BasicResponse.of(HttpStatus.CREATED, "Cliente creado correctamente", created);
+		return ResponseEntity.status(HttpStatus.CREATED).body(created);
 	}
 
 	@PutMapping("/{id}")
-	public BasicResponse<ClientDto> update(@PathVariable Long id, @Valid @RequestBody ClientDto clientDto) {
+	public ResponseEntity<ClientDto> update(@PathVariable Long id, @Valid @RequestBody ClientDto clientDto) {
 		clientDto.setId(id);
 		ClientDto updated = this.clientService.update(clientDto);
-		return BasicResponse.of(HttpStatus.OK, "Cliente actualizado correctamente", updated);
+		return ResponseEntity.ok(updated);
 	}
 
 	@PatchMapping("/{id}")
-	public BasicResponse<ClientDto> partialUpdate(@PathVariable Long id,
+	public ResponseEntity<ClientDto> partialUpdate(@PathVariable Long id,
 			@RequestBody PartialClientDto partialClientDto) {
 		ClientDto updated = this.clientService.partialUpdate(id, partialClientDto);
-		return BasicResponse.of(HttpStatus.OK, "Cliente actualizado correctamente", updated);
+		return ResponseEntity.ok(updated);
 	}
 
 	@DeleteMapping("/{id}")
-	public BasicResponse<Void> delete(@PathVariable Long id) {
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		this.clientService.deleteById(id);
-		return BasicResponse.of(HttpStatus.OK, "Cliente eliminado correctamente", null);
+		return ResponseEntity.ok(null);
 	}
 }

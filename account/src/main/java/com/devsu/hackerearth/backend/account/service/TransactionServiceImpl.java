@@ -90,13 +90,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<BankStatementDto> getAllByAccountClientIdAndDateBetween(Long clientId, Date dateTransactionStart,
-            Date dateTransactionEnd, String authorizationHeader) {
+            Date dateTransactionEnd) {
         Long currentClientId = SecurityUtils.getCurrentClientId();
         if (currentClientId == null || !currentClientId.equals(clientId)) {
             throw new GenericException(HttpStatus.FORBIDDEN,
                     "Solo puedes consultar el estado de cuenta de tu propio cliente");
         }
 
+        String authorizationHeader = SecurityUtils.getCurrentAuthorizationHeader();
         ClientResponseDto client = clientRestClient.getClientByIdBlocking(clientId, authorizationHeader);
 
         List<Account> accounts = accountRepository.findByClientId(clientId);

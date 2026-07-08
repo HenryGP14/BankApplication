@@ -3,6 +3,7 @@ package com.devsu.hackerearth.backend.client.controller;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devsu.hackerearth.backend.client.model.Client;
-import com.devsu.hackerearth.backend.client.model.dto.BasicResponse;
 import com.devsu.hackerearth.backend.client.model.dto.LoginRequestDto;
 import com.devsu.hackerearth.backend.client.model.dto.LoginResponseDto;
 import com.devsu.hackerearth.backend.client.repository.ClientRepository;
@@ -33,7 +33,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public BasicResponse<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto loginRequest) {
+	public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto loginRequest) {
 		Client client = clientRepository.findByDni(loginRequest.getDni())
 				.filter(c -> passwordEncoder.matches(loginRequest.getPassword(), c.getPassword()))
 				.orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
@@ -44,6 +44,6 @@ public class AuthController {
 
 		String token = jwtService.generateToken(client.getId(), client.getDni());
 		LoginResponseDto data = new LoginResponseDto(token, "Bearer");
-		return BasicResponse.of(HttpStatus.OK, "Autenticación exitosa", data);
+		return ResponseEntity.status(HttpStatus.OK).body(data);
 	}
 }

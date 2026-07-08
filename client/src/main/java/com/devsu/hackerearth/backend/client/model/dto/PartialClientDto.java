@@ -16,4 +16,8 @@ public class PartialClientDto {
     private String phone;
     private String password;
     private Boolean active;
+
+    public PartialClientDto(Boolean active) {
+        this.active = active;
+    }
 }

@@ -9,4 +9,8 @@ public class PartialAccountDto {
     private String type;
     private Double initialAmount;
     private Boolean active;
+
+    public PartialAccountDto(Boolean active) {
+        this.active = active;
+    }
 }
