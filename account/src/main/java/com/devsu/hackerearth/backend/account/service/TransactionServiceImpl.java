@@ -1,5 +1,6 @@
 package com.devsu.hackerearth.backend.account.service;
 
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -101,10 +102,11 @@ public class TransactionServiceImpl implements TransactionService {
         ClientResponseDto client = clientRestClient.getClientByIdBlocking(clientId, authorizationHeader);
 
         List<Account> accounts = accountRepository.findByClientId(clientId);
+        Date endOfDay = endOfDay(dateTransactionEnd);
 
         return accounts.stream()
                 .flatMap(account -> transactionRepository
-                        .findByAccountIdAndDateBetween(account.getId(), dateTransactionStart, dateTransactionEnd)
+                        .findByAccountIdAndDateBetween(account.getId(), dateTransactionStart, endOfDay)
                         .stream()
                         .map(transaction -> mapToBankStatementDto(client, account, transaction)))
                 .sorted(Comparator.comparing(BankStatementDto::getDate))
@@ -144,6 +146,16 @@ public class TransactionServiceImpl implements TransactionService {
             throw new GenericException(HttpStatus.FORBIDDEN,
                     "Esta operación solo puede realizarla el titular de la cuenta");
         }
+    }
+
+    private Date endOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar.getTime();
     }
 
     private Account findAccountOrThrow(Long accountId) {

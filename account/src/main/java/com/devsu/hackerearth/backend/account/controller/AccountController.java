@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 import com.devsu.hackerearth.backend.account.model.dto.AccountDto;
 import com.devsu.hackerearth.backend.account.model.dto.PartialAccountDto;
 import com.devsu.hackerearth.backend.account.service.AccountService;
@@ -39,8 +41,9 @@ public class AccountController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<AccountDto> get(@PathVariable Long id) {
-		AccountDto account = this.accountService.getById(id);
-		return ResponseEntity.ok(account);
+		return Optional.ofNullable(this.accountService.getById(id))
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@PostMapping
@@ -52,21 +55,29 @@ public class AccountController {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<AccountDto> update(@PathVariable Long id, @Valid @RequestBody AccountDto accountDto) {
-		accountDto.setId(id);
-		AccountDto updated = this.accountService.update(accountDto);
-		return ResponseEntity.ok(updated);
+		if (accountDto.getId() == null) {
+			accountDto.setId(id);
+		}
+		return Optional.ofNullable(this.accountService.update(accountDto))
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@PatchMapping("/{id}")
 	public ResponseEntity<AccountDto> partialUpdate(@PathVariable Long id,
 			@RequestBody PartialAccountDto partialAccountDto) {
-		AccountDto updated = this.accountService.partialUpdate(id, partialAccountDto);
-		return ResponseEntity.ok(updated);
+		return Optional.ofNullable(this.accountService.partialUpdate(id, partialAccountDto))
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
-		this.accountService.deleteById(id);
-		return ResponseEntity.ok(null);
+		return Optional.ofNullable(this.accountService.getById(id))
+				.map(existing -> {
+					this.accountService.deleteById(id);
+					return ResponseEntity.noContent().<Void>build();
+				})
+				.orElse(ResponseEntity.notFound().build());
 	}
 }

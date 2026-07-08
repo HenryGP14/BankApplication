@@ -2,6 +2,7 @@ package com.devsu.hackerearth.backend.account.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -40,16 +41,17 @@ public class TransactionController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<TransactionDto> get(@PathVariable Long id) {
-		TransactionDto transaction = this.transactionService.getById(id);
-		transaction.setBalance(null);
-		return ResponseEntity.ok(transaction);
+		return Optional.ofNullable(this.transactionService.getById(id))
+				.map(transaction -> {
+					return ResponseEntity.ok(transaction);
+				})
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<TransactionDto> create(@RequestBody @Valid TransactionDto transactionDto) {
 		TransactionDto created = this.transactionService.create(transactionDto);
-		created.setBalance(null);
 		return ResponseEntity.status(HttpStatus.CREATED).body(created);
 	}
 

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 import com.devsu.hackerearth.backend.client.model.dto.ClientDto;
 import com.devsu.hackerearth.backend.client.model.dto.PartialClientDto;
 import com.devsu.hackerearth.backend.client.service.ClientService;
@@ -39,8 +41,9 @@ public class ClientController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<ClientDto> get(@PathVariable Long id) {
-		ClientDto client = this.clientService.getById(id);
-		return ResponseEntity.ok(client);
+		return Optional.ofNullable(this.clientService.getById(id))
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@PostMapping
@@ -52,21 +55,29 @@ public class ClientController {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<ClientDto> update(@PathVariable Long id, @Valid @RequestBody ClientDto clientDto) {
-		clientDto.setId(id);
-		ClientDto updated = this.clientService.update(clientDto);
-		return ResponseEntity.ok(updated);
+		if (clientDto.getId() == null) {
+			clientDto.setId(id);
+		}
+		return Optional.ofNullable(this.clientService.update(clientDto))
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@PatchMapping("/{id}")
 	public ResponseEntity<ClientDto> partialUpdate(@PathVariable Long id,
 			@RequestBody PartialClientDto partialClientDto) {
-		ClientDto updated = this.clientService.partialUpdate(id, partialClientDto);
-		return ResponseEntity.ok(updated);
+		return Optional.ofNullable(this.clientService.partialUpdate(id, partialClientDto))
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
-		this.clientService.deleteById(id);
-		return ResponseEntity.ok(null);
+		return Optional.ofNullable(this.clientService.getById(id))
+				.map(existing -> {
+					this.clientService.deleteById(id);
+					return ResponseEntity.noContent().<Void>build();
+				})
+				.orElse(ResponseEntity.notFound().build());
 	}
 }
