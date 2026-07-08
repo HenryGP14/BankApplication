@@ -1,0 +1,699 @@
+{
+  "info": {
+    "_postman_id": "bc7a7e1a-3e08-42f1-9b7a-c05d21f03f73",
+    "name": "Bank Application - Microservicios (Client / Account)",
+    "description": "Colección para probar client-service (8001) y account-service (8000). Ejecutar primero 'Auth > Login (cliente demo)' para capturar el token automáticamente; luego 'Clients > Crear cliente', 'Accounts > Crear cuenta' y 'Transactions > Crear depósito' encadenan sus ids solos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "16727589"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (cliente demo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.data.token);",
+                  "pm.test('Login OK y token recibido', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(json.data.token).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni\": \"0000000000\",\n  \"password\": \"Demo1234\"\n}"
+            },
+            "url": {
+              "raw": "{{clientBaseUrl}}/api/auth/login",
+              "host": [
+                "{{clientBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "Listar clientes (público, sin token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{clientBaseUrl}}/api/clients",
+              "host": [
+                "{{clientBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener cliente por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{clientBaseUrl}}/api/clients/{{clientId}}",
+              "host": [
+                "{{clientBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clients",
+                "{{clientId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('clientId', json.data.id);",
+                  "pm.test('Cliente creado', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni\": \"1234567890\",\n  \"name\": \"Juan Perez\",\n  \"password\": \"Secret123\",\n  \"gender\": \"M\",\n  \"age\": 32,\n  \"address\": \"Av. Amazonas 123\",\n  \"phone\": \"0991234567\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{clientBaseUrl}}/api/clients",
+              "host": [
+                "{{clientBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar cliente (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni\": \"1234567890\",\n  \"name\": \"Juan Perez Actualizado\",\n  \"password\": \"\",\n  \"gender\": \"M\",\n  \"age\": 33,\n  \"address\": \"Av. Amazonas 456\",\n  \"phone\": \"0991234567\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{clientBaseUrl}}/api/clients/{{clientId}}",
+              "host": [
+                "{{clientBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clients",
+                "{{clientId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar parcial cliente (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": \"Nueva dirección 789\"\n}"
+            },
+            "url": {
+              "raw": "{{clientBaseUrl}}/api/clients/{{clientId}}",
+              "host": [
+                "{{clientBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clients",
+                "{{clientId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{clientBaseUrl}}/api/clients/{{clientId}}",
+              "host": [
+                "{{clientBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clients",
+                "{{clientId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Listar cuentas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/accounts",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener cuenta por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/accounts/{{accountId}}",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "{{accountId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear cuenta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('accountId', json.data.id);",
+                  "pm.test('Cuenta creada', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"478758\",\n  \"type\": \"Ahorros\",\n  \"initialAmount\": 1000.0,\n  \"active\": true,\n  \"clientId\": {{clientId}}\n}"
+            },
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/accounts",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar cuenta (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"478758\",\n  \"type\": \"Corriente\",\n  \"initialAmount\": 1000.0,\n  \"active\": true,\n  \"clientId\": {{clientId}}\n}"
+            },
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/accounts/{{accountId}}",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "{{accountId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar parcial cuenta (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": false\n}"
+            },
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/accounts/{{accountId}}",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "{{accountId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar cuenta",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/accounts/{{accountId}}",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "{{accountId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Listar transacciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/transactions",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener transacción por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear depósito",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('transactionId', json.data.id);",
+                  "pm.test('Depósito creado', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-01-10\",\n  \"type\": \"Deposito\",\n  \"amount\": 200.0,\n  \"balance\": 0,\n  \"accountId\": {{accountId}}\n}"
+            },
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/transactions",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear retiro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-01-11\",\n  \"type\": \"Retiro\",\n  \"amount\": -50.0,\n  \"balance\": 0,\n  \"accountId\": {{accountId}}\n}"
+            },
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/transactions",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Retiro sin saldo (debe fallar con 422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-01-12\",\n  \"type\": \"Retiro\",\n  \"amount\": -999999.0,\n  \"balance\": 0,\n  \"accountId\": {{accountId}}\n}"
+            },
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/transactions",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar transacción (crea reversión)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/transactions/{{transactionId}}",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reporte estado de cuenta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accountBaseUrl}}/api/transactions/clients/{{clientId}}/report?dateTransactionStart=2026-01-01&dateTransactionEnd=2026-12-31",
+              "host": [
+                "{{accountBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "clients",
+                "{{clientId}}",
+                "report"
+              ],
+              "query": [
+                {
+                  "key": "dateTransactionStart",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "dateTransactionEnd",
+                  "value": "2026-12-31"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "clientBaseUrl",
+      "value": "http://localhost:8001"
+    },
+    {
+      "key": "accountBaseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "accountId",
+      "value": ""
+    },
+    {
+      "key": "transactionId",
+      "value": ""
+    }
+  ]
+}
